@@ -203,8 +203,6 @@ fancy_echo "Installing dotfiles"
     echo "[user]" > "$HOME/.gitconfig.local"
     echo "  name = $GIT_USER" >> "$HOME/.gitconfig.local"
     echo "  email = $GIT_EMAIL" >> "$HOME/.gitconfig.local"
-    defaults write com.torusknot.SourceTreeNotMAS globalUserEmail -string "$GIT_EMAIL"
-    defaults write com.torusknot.SourceTreeNotMAS globalUserFullName -string "$GIT_USER"
     killall cfprefsd
   fi
 
@@ -213,6 +211,9 @@ brew unlink openssl && brew link openssl --force
 
 brew_install_or_upgrade 'libyaml'
 brew_install_or_upgrade 'git'
+brew_install_or_upgrade 'hub'
+brew_install_or_upgrade 'rowanj-gitx'
+brew_install_or_upgrade 'github-release'
 brew_install_or_upgrade 'vim' --override-system-vi
 brew_install_or_upgrade 'imagemagick' --with-webp
 brew_install_or_upgrade 'node'
@@ -220,7 +221,6 @@ brew_install_or_upgrade 'moreutils'
 brew_install_or_upgrade 'findutils'
 brew_install_or_upgrade 'homebrew/dupes/grep' --default-names
 brew_install_or_upgrade 'homebrew/dupes/screen'
-brew_install_or_upgrade 'tig'
 brew_install_or_upgrade 'ansible'
 brew_install_or_upgrade 'wget' --with-iri
 brew_install_or_upgrade 'tree'
@@ -228,7 +228,6 @@ brew_install_or_upgrade 'dockutil'
 brew_install_or_upgrade 'watch'
 brew_install_or_upgrade 'ngrok'
 brew_install_or_upgrade 'heroku-toolbelt'
-brew_install_or_upgrade 'github-release'
 brew_install_or_upgrade 'docker'
 brew_install_or_upgrade 'ant'
 
@@ -275,7 +274,7 @@ sudo easy_install pip
 sudo pip install boto
 
 npm install -g npm@latest
-npm install -g svgo tslint typescript
+npm install -g svgo tslint typescript bower gulp
 
 brew_install_or_upgrade 'chruby'
 append_to_zshrc 'source /usr/local/share/chruby/chruby.sh'
@@ -329,6 +328,9 @@ echo ""
 echo "Wipe all (default) app icons from the Dock"
 defaults write com.apple.dock persistent-apps -array
 
+fancy_echo "Installing Appcleaner"
+  brew cask install appcleaner
+
 fancy_echo "Installing flux"
   brew cask install flux
   open -a /Applications/Flux.app
@@ -342,10 +344,6 @@ fancy_echo "Installing vagrant"
   brew cask install vagrant
   vagrant plugin install vagrant-cachier
   vagrant plugin install vagrant-bindfs
-  vagrant plugin install vagrant-parallels
-
-fancy_echo "Installing Parallels Virtualization SDK"
-  brew cask install parallels-virtualization-sdk
 
 fancy_echo "Installing skype"
   brew cask install skype
@@ -374,19 +372,12 @@ fancy_echo "Installing Android Studio ..."
   append_to_zshrc 'ANDROID_HOME="~/Library/Android/sdk"'
   append_to_zshrc 'PATH="$HOME/Library/Android/sdk/tools:$HOME/Library/Android/sdk/platform-tools:$HOME/Library/Android/sdk/build-tools:$PATH"'
 
-fancy_echo "Installing evernote ..."
-  brew cask install evernote
-  dockutil --add /Applications/Evernote.app
-
 fancy_echo "Installing xquartz"
   brew cask install xquartz
 
 fancy_echo "Installing slack"
   brew cask install slack
   dockutil --add /Applications/Slack.app
-
-fancy_echo "Installing imagealpha"
-  brew cask install imagealpha
 
 fancy_echo "Installing the-unarchiver"
   brew cask install the-unarchiver
@@ -395,11 +386,11 @@ fancy_echo "Installing the-unarchiver"
 fancy_echo "Installing vlc"
   brew cask install vlc
 
-fancy_echo "Installing HockeyApp"
-  brew cask install hockey
-
 fancy_echo "Installing dropbox"
   brew cask install dropbox
+
+fancy_echo "Installing infinit"
+  brew cask install infinit
 
 fancy_echo "Installing mailbox"
   brew cask install mailbox
@@ -407,23 +398,8 @@ fancy_echo "Installing mailbox"
 fancy_echo "Installing omnidisksweeper"
   brew cask install omnidisksweeper
 
-fancy_echo "Installing imageoptim"
-  brew cask install imageoptim
-
 fancy_echo "Installing packer"
   brew cask install packer
-
-fancy_echo "Installing sourcetree"
-  brew cask install sourcetree
-  dockutil --add /Applications/SourceTree.app
-
-fancy_echo "Installing iterm2-beta"
-  brew cask install iterm2-beta
-  dockutil --add /Applications/iTerm.app
-
-fancy_echo "Installing bee"
-  brew cask install bee
-  dockutil --add /Applications/Bee.app
 
 fancy_echo "Installing pgadmin3"
   brew cask install pgadmin3
@@ -441,11 +417,9 @@ fancy_echo "Installing Firefox"
 fancy_echo "Add official apps to the dock"
   dockutil --add /Applications/Safari.app
   dockutil --add /Applications/Xcode.app
-  dockutil --add /Applications/Wunderlist.app
 
 fancy_echo "Add other pre-installed apps to the dock"
   dockutil --add /Applications/Transmit.app
-  dockutil --add /Applications/Parallels\ Desktop.app
 
 fancy_echo "Installing your personal additions from ~/.laptop.local ..."
   if [[ -f ~/.laptop.local ]]; then
@@ -527,9 +501,7 @@ sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdate
 
 echo ""
 echo "Exclude VMs from TimeMachine"
-mkdir -p "~/Documents/Parallels"
 mkdir -p "~/VirtualBox VMs"
-sudo tmutil addexclusion "~/Documents/Parallels"
 sudo tmutil addexclusion "~/VirtualBox VMs"
 
 ###############################################################################
@@ -585,16 +557,6 @@ defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerSwipeGe
 echo ""
 echo "Turn off keyboard illumination when computer is not used for 5 minutes"
 defaults write com.apple.BezelServices kDimTime -int 300
-
-echo ""
-echo "Trackpad: enable tap to click for this user and for the login screen"
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-
-echo ""
-echo "Disable “natural” (Lion-style) scrolling"
-defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
 echo ""
 echo "Use scroll gesture with the Ctrl (^) modifier key to zoom"
@@ -707,29 +669,6 @@ echo "Speeding up Mission Control animations and grouping windows by application
 defaults write com.apple.dock expose-animation-duration -float 0.1
 defaults write com.apple.dock "expose-group-by-app" -bool true
 
-echo ""
-echo "Hot corners"
-
-echo ""
-echo "Top left screen corner → Put display to sleep"
-defaults write com.apple.dock wvous-tl-corner -int 10
-defaults write com.apple.dock wvous-tl-modifier -int 0
-
-echo ""
-echo "Top right screen corner → Mission Control"
-defaults write com.apple.dock wvous-tr-corner -int 2
-defaults write com.apple.dock wvous-tr-modifier -int 0
-
-echo ""
-echo "Bottom right screen corner → Desktop"
-defaults write com.apple.dock wvous-br-corner -int 4
-defaults write com.apple.dock wvous-br-modifier -int 0
-
-echo ""
-echo "Bottom left screen corner → Application Windows"
-defaults write com.apple.dock wvous-bl-corner -int 3
-defaults write com.apple.dock wvous-bl-modifier -int 0
-
 ###############################################################################
 # Safari & WebKit
 ###############################################################################
@@ -822,13 +761,11 @@ echo "Disable continuous spell checking in Messages.app"
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "continuousSpellCheckingEnabled" -bool false
 
 
-
-
 fancy_echo "Downloading dev box"
 if vagrant box list | grep -q sharette; then
   vagrant box update sharette/dev
 else
-  vagrant box add http://box.sharette.fr --provider parallels
+  vagrant box add http://box.sharette.fr
 fi
 
 
